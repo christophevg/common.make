@@ -80,6 +80,11 @@ ${BUILD_DIR}/${APP}.shared.js: ${BUILD_DIR} ${SHARED_SRCS}
 	@cat ${SHARED_SRCS} > $@
 	@echo "\n${APP}.version = \"${VERSION}\";\n" >> $@;
 
+${BUILD_DIR}/${APP}.js: ${BUILD_DIR} ${SHARED_SRCS}
+	@echo "*** building $@"
+	@cat ${SHARED_SRCS} > $@
+	@echo "\n${APP}.version = \"${VERSION}\";\n" >> $@;
+
 ${BUILD_DIR}/${APP}.standalone.js: ${BUILD_DIR} ${LIBS} ${STANDALONE_SRCS}
 	@echo "*** building $@"
 	@cat ${LIBS} ${STANDALONE_SRCS} > $@
