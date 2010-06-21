@@ -17,8 +17,14 @@ DIST_SRCS     = LICENSE README ${TARGETS} examples
 DIST-SRC      = ${APP}-${VERSION}-src.zip
 DIST-SRC_SRCS = LICENSE README Makefile ${SRC_DIR} ${LIB_DIR} examples
 
-TARGETS = ${BUILD_DIR}/${APP}.shared.min.js \
-		      ${BUILD_DIR}/${APP}.standalone.min.js
+ifeq (${BUILD_STYLE}, simple)
+	TARGETS = ${BUILD_DIR}/${APP}.min.js
+	EXAMPLE_TARGET = ${APP}.min.js
+else
+	TARGETS = ${BUILD_DIR}/${APP}.shared.min.js \
+	          ${BUILD_DIR}/${APP}.standalone.min.js;
+	EXAMPLE_TARGET = ${APP}.standalone.min.js
+endif
 
 DIST_TARGETS = ${DIST_DIR}/${DIST} \
 			         ${DIST_DIR}/${DIST-SRC} \
