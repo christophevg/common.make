@@ -1,4 +1,4 @@
-load("lib/jslint.js");
+load("lib/common.make/jslint.js");
 
 var fileName = arguments[0];
 var src      = readFile(fileName);
