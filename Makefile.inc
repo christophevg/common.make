@@ -97,7 +97,7 @@ ${DIST_DIR}/${DIST}: ${DIST_SRCS}
 	@( cd ${DIST_DIR}/js/${APP}/examples; \
 	   for f in *.html; do \
 		cat $$f \
-		| sed -e 's/includes\.js/..\/${APP}.standalone.min.js/' \
+		| sed -e 's/includes\.js/..\/${EXAMPLE_TARGET}/' \
 		> $$f.new; \
 		mv $$f.new $$f; \
 	done )
