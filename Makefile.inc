@@ -34,17 +34,14 @@ STANDALONE_SRCS = ${SRCS}
 SHARED_SRCS     = ${SHARED_EXTRA_SRCS} ${SRCS}
 
 # TO CONFIGURE:
-SRCS               =
-SHARED_EXTRA_SRCS  =
-
-LIBS               =
-UPDATE_LIBS        = 
-
-MORE_TARGETS       = 
-MORE_DIST_TARGETS  = 
-
-MORE_DIST-SRCS     =
-MORE_DIST-SRC_SRCS = 
+# SRCS               =       # all sources that need to be compiled
+# SHARED_EXTRA_SRCS  =       # sources that need to be included in shared
+# LIBS               =       # libs that need to be included in standalone
+# UPDATE_LIBS        =       # libs that need to be rebuild/make'd
+# MORE_TARGETS       =       # additional targets for all:
+# MORE_DIST_TARGETS  =       # additional targets for dist:
+# MORE_DIST-SRCS     =       # additional sources for dist:
+# MORE_DIST-SRC_SRCS =       # additional sources for dist-src:
 
 all: prepare ${TARGETS}
 
