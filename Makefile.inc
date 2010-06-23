@@ -22,7 +22,7 @@ ifeq (${BUILD_STYLE}, simple)
 	EXAMPLE_TARGET = ${APP}.min.js
 else
 	TARGETS = ${BUILD_DIR}/${APP}.shared.min.js \
-	          ${BUILD_DIR}/${APP}.standalone.min.js;
+	          ${BUILD_DIR}/${APP}.standalone.min.js
 	EXAMPLE_TARGET = ${APP}.standalone.min.js
 endif
 
