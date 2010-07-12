@@ -6,8 +6,9 @@ DIST_DIR  = dist
 MAKE      = make
 ZIP       = zip -qr
 
-RHINO     = java -jar lib/common.make/js.jar
-COMPRESS  = java -jar lib/common.make/yuicompressor-2.4.2.jar --type js
+RHINO         = java -jar lib/common.make/js.jar
+JSEXEC        = ${RHINO} -w -debug
+COMPRESS      = java -jar lib/common.make/yuicompressor-2.4.2.jar --type js
 
 VERSION = $(shell git describe --tags | cut -d'-' -f1,2)
 
@@ -18,11 +19,13 @@ DIST-SRC      = ${APP}-${VERSION}-src.zip
 DIST-SRC_SRCS = LICENSE README Makefile ${SRC_DIR} ${LIB_DIR} examples
 
 ifeq (${BUILD_STYLE}, simple)
-	TARGETS = ${BUILD_DIR}/${APP}.min.js
+	TARGETS = ${BUILD_DIR}/${APP}.min.js \
+            ${BUILD_DIR}/${APP}.cli.min.js
 	EXAMPLE_TARGET = ${APP}.min.js
 else
 	TARGETS = ${BUILD_DIR}/${APP}.shared.min.js \
-	          ${BUILD_DIR}/${APP}.standalone.min.js
+	          ${BUILD_DIR}/${APP}.standalone.min.js \
+            ${BUILD_DIR}/${APP}.cli.min.js
 	EXAMPLE_TARGET = ${APP}.standalone.min.js
 endif
 
@@ -34,9 +37,12 @@ STANDALONE_SRCS = ${SRCS}
 SHARED_SRCS     = ${SHARED_EXTRA_SRCS} ${SRCS}
 
 # TO CONFIGURE:
+
 # SRCS               =       # all sources that need to be compiled
+# CLI_SRCS           =       # sources the need to be compiled for cli
 # SHARED_EXTRA_SRCS  =       # sources that need to be included in shared
 # LIBS               =       # libs that need to be included in standalone
+# CLI_LIBS           =       # libs that need to be included in cli
 # UPDATE_LIBS        =       # libs that need to be rebuild/make'd
 # MORE_TARGETS       =       # additional targets for all:
 # MORE_DIST_TARGETS  =       # additional targets for dist:
@@ -87,6 +93,11 @@ ${BUILD_DIR}/${APP}.standalone.js: ${BUILD_DIR} ${LIBS} ${STANDALONE_SRCS}
 	@cat ${LIBS} ${STANDALONE_SRCS} > $@
 	@echo "\n${APP}.version = \"${VERSION}\";\n" >> $@;
 
+${BUILD_DIR}/${APP}.cli.js: ${BUILD_DIR} ${CLI_LIBS} ${CLI_SRCS}
+	@echo "*** building $@"
+	@cat ${CLI_LIBS} ${CLI_SRCS} > $@
+	@echo "\n${APP}.version = \"${VERSION}\";\n" >> $@;
+
 ${DIST_DIR}/${DIST}: ${DIST_SRCS}
 	@echo "*** packaging ${APP} distribution"
 	@mkdir -p ${DIST_DIR}/js/${APP}
@@ -110,9 +121,13 @@ ${DIST_DIR}/${DIST-SRC}: ${DIST-SRC_SRCS}
 	@echo "*** building $@"
 	@${COMPRESS} $< > $@
 
+test: ${BUILD_DIR}/${APP}.cli.min.js
+	@echo "*** running tests"
+	@${JSEXEC} -opt -1 -f t/runAllTests.js
+
 clean:
 	@find . | grep "~$$" | xargs rm -f
-	@rm -rf ${DIST_DIR}
+	@rm -rf ${BUILD_DIR}
 
 mrproper: clean
-	@rm -rf ${BUILD_DIR}
+	@rm -rf ${DIST_DIR}
