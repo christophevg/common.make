@@ -56,17 +56,24 @@ dist: prepare ${DIST_TARGETS}
 prepare: init check-deps update 
 
 init:
-	@git submodule init
-	@git submodule update
+	@if [ ! -e .gitmodules ]; then \
+		echo "*** initializing submodules"; \
+		git submodule update --init; \
+	fi
 
 check-deps:
-	@which zip  >/dev/null || ( echo "ERROR: missing : zip";  exit 1 )
-	@which git  >/dev/null || ( echo "ERROR: missing : git";  exit 1 )
-	@which java >/dev/null || ( echo "ERROR: missing : java"; exit 1 )
+	@if [ ! -e .depcheck ]; then \
+		echo "*** checking for dependencies"; \
+		which zip  >/dev/null || ( echo "ERROR: missing : zip";  exit 1 ); \
+		which git  >/dev/null || ( echo "ERROR: missing : git";  exit 1 ); \
+		which java >/dev/null || ( echo "ERROR: missing : java"; exit 1 ); \
+		touch .depcheck; \
+	fi
 
 update: ${UPDATE_LIBS}
+	@echo "*** updating submodules"
 	@for l in ${UPDATE_LIBS}; do \
-    ( cd $$l; ${MAKE}; ) \
+    ( git submodule update $$l; cd $$l; ${MAKE}; ) \
   done
 
 ${BUILD_DIR}:
@@ -93,7 +100,7 @@ ${BUILD_DIR}/${APP}.standalone.js: ${BUILD_DIR} ${LIBS} ${STANDALONE_SRCS}
 	@cat ${LIBS} ${STANDALONE_SRCS} > $@
 	@echo "\n${APP}.version = \"${VERSION}\";\n" >> $@;
 
-${BUILD_DIR}/${APP}.cli.js: ${BUILD_DIR} ${CLI_LIBS} ${CLI_SRCS}
+${BUILD_DIR}/${APP}.cli.js: prepare ${BUILD_DIR} ${CLI_LIBS} ${CLI_SRCS}
 	@echo "*** building $@"
 	@cat ${CLI_LIBS} ${CLI_SRCS} > $@
 	@echo "\n${APP}.version = \"${VERSION}\";\n" >> $@;
@@ -121,7 +128,7 @@ ${DIST_DIR}/${DIST-SRC}: ${DIST-SRC_SRCS}
 	@echo "*** building $@"
 	@${COMPRESS} $< > $@
 
-test: ${BUILD_DIR}/${APP}.cli.min.js
+test: prepare ${BUILD_DIR}/${APP}.cli.min.js
 	@echo "*** running tests"
 	@${JSEXEC} -opt -1 -f t/runAllTests.js
 
