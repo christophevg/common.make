@@ -46,10 +46,11 @@ SHARED_SRCS     = ${SHARED_EXTRA_SRCS} ${SRCS}
 # UPDATE_LIBS        =       # libs that need to be rebuild/make'd
 # MORE_TARGETS       =       # additional targets for all:
 # MORE_DIST_TARGETS  =       # additional targets for dist:
+# MORE_TEST_TARGETS  =       # additional targets for test:
 # MORE_DIST-SRCS     =       # additional sources for dist:
 # MORE_DIST-SRC_SRCS =       # additional sources for dist-src:
 
-all: prepare ${TARGETS}
+all: prepare ${TARGETS} ${MORE_TARGETS}
 
 dist: prepare ${DIST_TARGETS}
 
@@ -128,7 +129,9 @@ ${DIST_DIR}/${DIST-SRC}: ${DIST-SRC_SRCS}
 	@echo "*** building $@"
 	@${COMPRESS} $< > $@
 
-test: prepare ${BUILD_DIR}/${APP}.cli.min.js
+test: prepare ${BUILD_DIR}/${APP}.cli.min.js test-js ${MORE_TEST_TARGETS}
+
+test-js:
 	@echo "*** running tests"
 	@${JSEXEC} -opt -1 -f t/runAllTests.js
 
