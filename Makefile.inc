@@ -47,6 +47,8 @@ SHARED_SRCS     = ${SHARED_EXTRA_SRCS} ${SRCS}
 # MORE_TARGETS       =       # additional targets for all:
 # MORE_DIST_TARGETS  =       # additional targets for dist:
 # MORE_TEST_TARGETS  =       # additional targets for test:
+# MORE_CLEAN_TARGETS  =      # additional targets for test:
+# MORE_MRPROPER_TARGETS  =   # additional targets for test:
 # MORE_DIST-SRCS     =       # additional sources for dist:
 # MORE_DIST-SRC_SRCS =       # additional sources for dist-src:
 
@@ -135,9 +137,13 @@ test-js:
 	@echo "*** running tests"
 	@${JSEXEC} -opt -1 -f t/runAllTests.js
 
-clean:
+clean: clean-default ${MORE_CLEAN_TARGETS}
+
+clean-default:
 	@find . | grep "~$$" | xargs rm -f
 	@rm -rf ${BUILD_DIR}
 
-mrproper: clean
+mrproper: mrproper-default ${MORE_MRPROPER_TARGETS}
+
+mrproper-default: clean
 	@rm -rf ${DIST_DIR}
