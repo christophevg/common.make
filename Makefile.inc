@@ -16,18 +16,21 @@ DIST          = ${APP}-${VERSION}.zip
 DIST_SRCS     = LICENSE README ${TARGETS} examples
 
 DIST-SRC      = ${APP}-${VERSION}-src.zip
-DIST-SRC_SRCS = LICENSE README Makefile ${SRC_DIR} ${LIB_DIR} examples
+DIST-SRC_SRCS = LICENSE README Makefile ${SRC_DIR} ${LIB_DIR} examples \
+                ${MORE_DIST-SRC_SRCS}
 
 ifeq (${BUILD_STYLE}, simple)
-	TARGETS = ${BUILD_DIR}/${APP}.min.js \
-            ${BUILD_DIR}/${APP}.cli.min.js
+	BASE_TARGETS = ${BUILD_DIR}/${APP}.min.js \
+                 ${BUILD_DIR}/${APP}.cli.min.js
 	EXAMPLE_TARGET = ${APP}.min.js
 else
-	TARGETS = ${BUILD_DIR}/${APP}.shared.min.js \
-	          ${BUILD_DIR}/${APP}.standalone.min.js \
-            ${BUILD_DIR}/${APP}.cli.min.js
+	BASE_TARGETS = ${BUILD_DIR}/${APP}.shared.min.js \
+	               ${BUILD_DIR}/${APP}.standalone.min.js \
+                 ${BUILD_DIR}/${APP}.cli.min.js
 	EXAMPLE_TARGET = ${APP}.standalone.min.js
 endif
+
+TARGETS = ${BASE_TARGETS} ${MORE_TARGETS}
 
 DIST_TARGETS = ${DIST_DIR}/${DIST} \
 			         ${DIST_DIR}/${DIST-SRC} \
@@ -52,11 +55,11 @@ SHARED_SRCS     = ${SHARED_EXTRA_SRCS} ${SRCS}
 # MORE_DIST-SRCS     =       # additional sources for dist:
 # MORE_DIST-SRC_SRCS =       # additional sources for dist-src:
 
-all: prepare ${TARGETS} ${MORE_TARGETS}
+all: prepare ${TARGETS}
 
 dist: prepare ${DIST_TARGETS}
 
-prepare: init check-deps update 
+prepare: init check-deps update
 
 init:
 	@if [ ! -e .gitmodules ]; then \
@@ -65,28 +68,18 @@ init:
 	fi
 
 check-deps:
-	@if [ ! -e .depcheck ]; then \
-		echo "*** checking for dependencies"; \
-		which zip  >/dev/null || ( echo "ERROR: missing : zip";  exit 1 ); \
-		which git  >/dev/null || ( echo "ERROR: missing : git";  exit 1 ); \
-		which java >/dev/null || ( echo "ERROR: missing : java"; exit 1 ); \
-		touch .depcheck; \
-	fi
+	@which zip  >/dev/null || ( echo "ERROR: missing : zip";  exit 1 );
+	@which git  >/dev/null || ( echo "ERROR: missing : git";  exit 1 );
+	@which java >/dev/null || ( echo "ERROR: missing : java"; exit 1 );
 
 update: ${UPDATE_LIBS}
-	@echo "*** updating submodules"
-	@for l in ${UPDATE_LIBS}; do \
-    ( git submodule update $$l; cd $$l; ${MAKE}; ) \
+  @echo "*** updating submodules"
+  @for l in ${UPDATE_LIBS}; do \
+    ( git submodule update $$l; cd $ll; ${MAKE} ) \
   done
 
 ${BUILD_DIR}:
 	@mkdir  -p ${BUILD_DIR}
-
-lint: ${SRCS}
-	@echo "*** checking source correctness using JSLint"
-	@for f in ${SRCS}; do \
-	  ${RHINO} lib/common.make/jslint-check.js $$f; \
-	done
 
 ${BUILD_DIR}/${APP}.shared.js: ${BUILD_DIR} ${SHARED_SRCS}
 	@echo "*** building $@"
@@ -115,7 +108,7 @@ ${DIST_DIR}/${DIST}: ${DIST_SRCS}
 	@( cd ${DIST_DIR}/js/${APP}/examples; \
 	   for f in *.html; do \
 		cat $$f \
-		| sed -e 's/includes\.js/..\/${EXAMPLE_TARGET}/' \
+		| sed -e 's/include\.js/${EXAMPLE_TARGET}/' \
 		> $$f.new; \
 		mv $$f.new $$f; \
 	done )
@@ -128,8 +121,14 @@ ${DIST_DIR}/${DIST-SRC}: ${DIST-SRC_SRCS}
 	@(cd ${DIST_DIR}/src; ${ZIP} ../${DIST-SRC} ${APP})
 
 %.min.js: %.js
-	@echo "*** building $@"
+	@echo "*** compressing $< > $@"
 	@${COMPRESS} $< > $@
+
+lint: ${SRCS}
+	@echo "*** checking source correctness using JSLint"
+	@for f in ${SRCS}; do \
+	  ${RHINO} lib/common.make/jslint-check.js $$f; \
+	done
 
 test: prepare ${BUILD_DIR}/${APP}.cli.min.js test-js ${MORE_TEST_TARGETS}
 
