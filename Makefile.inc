@@ -13,7 +13,7 @@ COMPRESS      = java -jar lib/common.make/yuicompressor-2.4.2.jar --type js
 VERSION = $(shell git describe --tags | cut -d'-' -f1,2)
 
 DIST          = ${APP}-${VERSION}.zip
-DIST_SRCS     = LICENSE README ${TARGETS} examples
+DIST_SRCS     = LICENSE README ${BASE_TARGETS} examples
 
 DIST-SRC      = ${APP}-${VERSION}-src.zip
 DIST-SRC_SRCS = LICENSE README Makefile ${SRC_DIR} ${LIB_DIR} examples \
