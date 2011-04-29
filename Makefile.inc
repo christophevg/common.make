@@ -75,7 +75,7 @@ check-deps:
 update: ${UPDATE_LIBS}
 	@echo "*** updating submodules"
 	@for l in ${UPDATE_LIBS}; do \
-		( git submodule update $$l; cd $ll; ${MAKE} ) \
+		( git submodule update $$l; cd $$l; ${MAKE} ) \
 	done
 
 ${BUILD_DIR}:
