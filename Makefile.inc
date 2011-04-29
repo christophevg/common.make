@@ -73,10 +73,10 @@ check-deps:
 	@which java >/dev/null || ( echo "ERROR: missing : java"; exit 1 );
 
 update: ${UPDATE_LIBS}
-  @echo "*** updating submodules"
-  @for l in ${UPDATE_LIBS}; do \
-    ( git submodule update $$l; cd $ll; ${MAKE} ) \
-  done
+	@echo "*** updating submodules"
+	@for l in ${UPDATE_LIBS}; do \
+		( git submodule update $$l; cd $ll; ${MAKE} ) \
+	done
 
 ${BUILD_DIR}:
 	@mkdir  -p ${BUILD_DIR}
